@@ -1,22 +1,24 @@
 import Link from 'next/link'
-import React from 'react'
-
-const people = [
-    {
-        name: 'John Doe',
-        department: 'Engineering',
-        role: 'Developer',
-        email: "john@doe.com"
-    },
-    {
-        name: 'Jane Doe',
-        department: 'Engineering',
-        role: 'CTO',
-        email: "jane@doe.com"
-    },
-]
+import React, { useEffect, useState } from 'react'
+interface Employee {
+    name: string
+    department: string
+    title: string
+    email: string
+}
 
 export function TableOne() {
+    const [people, setPeople] = useState<Array<Employee> | undefined>(undefined);
+    useEffect(() => {
+        (async () => {
+            const res = await fetch("/api/employees");
+            const data = await res.json();
+            setPeople(data?.res)
+            console.log(data.res);
+
+        })()
+    }, []);
+
     return (
         <>
             <section className="mx-auto w-full text-white max-w-7xl px-4 py-4">
@@ -29,12 +31,11 @@ export function TableOne() {
                         </p>
                     </div>
                     <div>
-                        <button
-                            type="button"
+                        <Link href={"/add"}
                             className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
                         >
                             Add new employee
-                        </button>
+                        </Link>
                     </div>
                 </div>
                 <div className="mt-6 flex flex-col">
@@ -60,7 +61,7 @@ export function TableOne() {
                                                 scope="col"
                                                 className="px-12 py-3.5 text-left text-sm font-normal text-white"
                                             >
-                                                Title
+                                                Department
                                             </th>
 
                                             <th
@@ -75,7 +76,7 @@ export function TableOne() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200 bg-black">
-                                        {people.map((person) => (
+                                        {people && people.map((person) => (
                                             <tr key={person.name}>
                                                 <td className="whitespace-nowrap px-4 py-4">
                                                     <div className="flex items-center">
@@ -92,10 +93,10 @@ export function TableOne() {
                                                     </div>
                                                 </td>
                                                 <td className="whitespace-nowrap px-12 py-4">
-                                                    <div className="text-sm text-white">{person.department}</div>
+                                                    <div className="text-sm text-white">{person.title}</div>
                                                 </td>
                                                 <td className="whitespace-nowrap px-4 py-4 text-sm text-white">
-                                                    {person.role}
+                                                    {person.department}
                                                 </td>
                                                 <td className="whitespace-nowrap px-4 flex gap-4 py-4 text-right text-sm font-medium">
                                                     <Link href={`/edit/${person.email}`} className="text-blue-400">
