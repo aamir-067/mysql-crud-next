@@ -4,45 +4,54 @@ import { ArrowRight } from 'lucide-react'
 import NavBar from '@/components/NavBar'
 import { useRouter } from 'next/navigation';
 
-export default function Add() {
+export default function Add({ params }: { params: { slug: string } }) {
+    const [employee, setEmployee] = useState({
+        name: "",
+        email: "",
+        department: "",
+        title: ""
+    });
+
     const router = useRouter();
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [title, setTitle] = useState('')
-    const [department, setDepartment] = useState('')
+
+
+    useEffect(() => {
+        const getEmployeeDetails = async () => {
+            try {
+                const res = await fetch(`/api/employees/get/${params.slug}`);
+                const data = await res.json();
+                setEmployee(data.res);
+                console.log(data);
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        getEmployeeDetails();
+    }, [params.slug]);
+
 
 
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement> | null = null) => {
         event && event.preventDefault();
         try {
-            const response = await fetch('/api/employees/create', {
-                method: 'POST',
+            const response = await fetch('/api/employees/edit', {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    name,
-                    email,
-                    title,
-                    department
-                })
+                body: JSON.stringify(employee)
             });
 
             if (response.ok) {
-                alert("Employee added successfully");
+                alert("Employee updated successfully");
                 router.push("/");
             }
-
-
-
-
-        } catch (error) {
-            console.log(error);
-            alert("Something went wrong while adding new employee");
+        } catch (e) {
+            console.log(e);
         }
     }
-
 
 
     return (
@@ -51,7 +60,7 @@ export default function Add() {
             <div className="flex items-center justify-center bg-black px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
                 <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">
                     <h2 className="text-2xl font-bold leading-tight text-white">Add New Employee</h2>
-                    <form onSubmit={(e) => handleSubmit(e)} className="mt-8">
+                    <form onSubmit={handleSubmit} className="mt-8">
                         <div className="space-y-5">
                             <div>
                                 <label htmlFor="name" className="text-base font-medium text-white">
@@ -60,10 +69,10 @@ export default function Add() {
                                 </label>
                                 <div className="mt-2">
                                     <input
-                                        value={name}
+                                        value={employee?.name}
                                         className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                                         type="text"
-                                        onChange={(e) => { setName(e.target.value) }}
+                                        onChange={(e) => { setEmployee((prev) => { return { ...prev, name: e.target.value } }) }}
                                         placeholder="Full Name"
                                         id="name"
                                     ></input>
@@ -76,8 +85,8 @@ export default function Add() {
                                 </label>
                                 <div className="mt-2">
                                     <input
-                                        value={email}
-                                        onChange={(e) => { setEmail(e.target.value) }}
+                                        value={employee?.email}
+                                        onChange={(e) => { setEmployee((prev) => { return { ...prev, email: e.target.value } }) }}
                                         className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                                         type="email"
                                         placeholder="Email"
@@ -96,8 +105,8 @@ export default function Add() {
                                     <input
                                         className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                                         type="title"
-                                        value={title}
-                                        onChange={(e) => { setTitle(e.target.value) }}
+                                        value={employee?.title}
+                                        onChange={(e) => { setEmployee((prev) => { return { ...prev, title: e.target.value } }) }}
                                         placeholder="title"
                                         id="title"
                                     ></input>
@@ -114,8 +123,8 @@ export default function Add() {
                                     <input
                                         className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                                         type="department"
-                                        value={department}
-                                        onChange={(e) => { setDepartment(e.target.value) }}
+                                        value={employee?.department}
+                                        onChange={(e) => { setEmployee((prev) => { return { ...prev, department: e.target.value } }) }}
                                         placeholder="department"
                                         id="department"
                                     ></input>
@@ -124,7 +133,7 @@ export default function Add() {
                             <div>
                                 <button
                                     type="button"
-                                    onClick={() => handleSubmit()}
+                                    onClick={() => handleSubmit(null)}
                                     className="inline-flex w-full items-center justify-center rounded-md bg-white px-3.5 py-2.5 font-semibold leading-7 text-black hover:bg-white/80"
                                 >
                                     Create Account <ArrowRight className="ml-2" size={16} />

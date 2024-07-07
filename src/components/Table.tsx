@@ -7,16 +7,32 @@ interface Employee {
     email: string
 }
 
+
+
 export function TableOne() {
     const [people, setPeople] = useState<Array<Employee> | undefined>(undefined);
-    useEffect(() => {
-        (async () => {
-            const res = await fetch("/api/employees");
-            const data = await res.json();
-            setPeople(data?.res)
-            console.log(data.res);
 
-        })()
+    const deleteRecord = async (employeeEmail: string) => {
+        try {
+            const res = await fetch(`/api/employees/delete/${employeeEmail}`, { method: "DELETE" })
+            if (res.ok) {
+                await getEmployees();
+                alert("Employee deleted successfully");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const getEmployees = async () => {
+        const res = await fetch("/api/employees");
+        const data = await res.json();
+        setPeople(data?.res)
+    }
+
+
+    useEffect(() => {
+        getEmployees()
     }, []);
 
     return (
@@ -102,9 +118,9 @@ export function TableOne() {
                                                     <Link href={`/edit/${person.email}`} className="text-blue-400">
                                                         Edit
                                                     </Link>
-                                                    <a href="#" className="text-red-400">
+                                                    <button onClick={() => deleteRecord(person.email)} className="text-red-400">
                                                         Delete
-                                                    </a>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
