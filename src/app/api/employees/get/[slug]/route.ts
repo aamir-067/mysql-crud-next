@@ -4,7 +4,7 @@ import { NextApiRequest } from "next";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-	req: NextApiRequest,
+	req: NextRequest,
 	{ params }: { params: { slug: string } }
 ) {
 	console.log(params);
@@ -16,7 +16,7 @@ export async function GET(
 		if (res === null) {
 			throw new Error("Database query returned null");
 		}
-		return NextResponse.json({ res: res[0] });
+		return NextResponse.json({ res: res });
 	} catch (error) {
 		console.error(error);
 		return NextResponse.json(

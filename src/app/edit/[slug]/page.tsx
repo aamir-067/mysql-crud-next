@@ -4,6 +4,12 @@ import { ArrowRight } from 'lucide-react'
 import NavBar from '@/components/NavBar'
 import { useRouter } from 'next/navigation';
 
+interface Employee {
+    name: string;
+    department: string;
+    title: string;
+    email: string;
+}
 export default function Add({ params }: { params: { slug: string } }) {
     const [employee, setEmployee] = useState({
         name: "",
@@ -19,8 +25,8 @@ export default function Add({ params }: { params: { slug: string } }) {
         const getEmployeeDetails = async () => {
             try {
                 const res = await fetch(`/api/employees/get/${params.slug}`);
-                const data = await res.json();
-                setEmployee(data.res);
+                const data: { res: Array<Employee> } = await res.json();
+                setEmployee(data.res[0]);
                 console.log(data);
 
             } catch (error) {
